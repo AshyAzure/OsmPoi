@@ -1,6 +1,5 @@
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
-use std::fs::File;
 
 #[derive(Debug, Deserialize)]
 pub struct InputRecord {
@@ -22,11 +21,21 @@ pub struct OutputRecord {
 pub fn read_csv(path: &str) -> Result<Vec<InputRecord>> {
     let mut rdr = csv::ReaderBuilder::new()
         .has_headers(true)
-        .from_reader(File::open(path)?);
+        .from_path(path)?;
     let mut ret = Vec::new();
     for record in rdr.deserialize() {
         let record: InputRecord = record?;
         ret.push(record);
     }
     Ok(ret)
+}
+
+pub fn write_csv(path: &str, outputs: Vec<OutputRecord>) -> Result<()> {
+    let mut wtr = csv::WriterBuilder::new()
+        .has_headers(true)
+        .from_path(path)?;
+    for o in outputs {
+        wtr.serialize(o)?;
+    }
+    Ok(())
 }
