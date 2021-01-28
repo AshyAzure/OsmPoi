@@ -1,10 +1,9 @@
-name: test
+name: libosmpoi
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    paths:
+      - 'osmpoi/**'
 
 env:
   CARGO_TERM_COLOR: always
