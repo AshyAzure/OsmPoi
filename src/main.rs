@@ -16,6 +16,7 @@ enum SubCommand {
     Add(Add),
     Export(Export),
     Rm(Remove),
+    Query(Query),
 }
 
 /// list all datasets
@@ -45,6 +46,18 @@ struct Remove {
     name: String,
 }
 
+#[derive(Clap)]
+struct Query {
+    /// the path of the csv file
+    path: String,
+    /// the name of the dataset
+    name: String,
+    /// where to output csv
+    output_path: String,
+    /// how long,
+    distance: f32,
+}
+
 fn main() -> Result<()> {
     let opts: Opts = Opts::parse();
     match opts.subcmd {
@@ -66,6 +79,9 @@ fn main() -> Result<()> {
         SubCommand::Rm(remove) => {
             let path = data_dir()?.join(remove.name);
             std::fs::remove_file(path)?;
+        }
+        SubCommand::Query(query) => {
+            query_csv(&query.path, &query.output_path, &query.name, query.distance)?;
         }
     }
 

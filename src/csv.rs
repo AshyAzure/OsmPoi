@@ -3,19 +3,20 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Deserialize)]
 pub struct InputRecord {
-    id: i64,
-    lat: f32,
-    lon: f32,
+    pub id: i64,
+    pub lat: f32,
+    pub lon: f32,
 }
 
 #[derive(Debug, Serialize)]
 pub struct OutputRecord {
-    refer_id: i64,
-    distance: f32,
-    lat: f32,
-    lon: f32,
-    delta_lat: f32,
-    delta_lon: f32,
+    pub refer_id: i64,
+    pub poi_type: i32,
+    pub lat: f32,
+    pub lon: f32,
+    pub delta_lat: f32,
+    pub delta_lon: f32,
+    pub tags: String,
 }
 
 pub fn read_csv(path: &str) -> Result<Vec<InputRecord>> {
