@@ -48,7 +48,7 @@ pub fn query_csv(
         conn.prepare(
             "SELECT poi_type, lat, lon, d_lat, d_lon, tags FROM poi 
              WHERE NOT ((lat - d_lat > ?2) OR (lat + d_lat < ?1)
-             OR (lon - d_lon > ?4) OR (lon + d_lon < ? 3))",
+             OR (lon - d_lon > ?4) OR (lon + d_lon < ?3))",
         )?
     };
     let inputs = read_csv(input_path)?;
@@ -83,9 +83,12 @@ pub fn query_csv(
         )?;
         for r in query_rows {
             let r: OutputRecord = r?;
-            if r.distance.0 > distance.0 {
-                continue;
+            if strict {
+                if r.distance.0 > distance.0 {
+                    continue;
+                }
             }
+
             res.push(r);
         }
     }
@@ -154,12 +157,12 @@ impl Distance {
                 * deg_to_rad(lat2.0).cos()
                 * deg_to_rad(dlon.0 / 2.).sin().powi(2);
         let c = 2. * a.sqrt().asin();
-        Distance(c * RADIUS_EARTH * 1000.)
+        Distance(c * RADIUS_EARTH)
     }
 }
 
 /// The radius of the Earth
-static RADIUS_EARTH: f32 = 6_371_000.;
+static RADIUS_EARTH: f32 = 6_371.;
 
 /// convert degree to radian
 fn deg_to_rad(deg: f32) -> f32 {

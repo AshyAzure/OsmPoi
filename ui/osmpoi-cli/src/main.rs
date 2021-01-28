@@ -50,10 +50,10 @@ struct Remove {
 /// query poi information from the dataset
 #[derive(Clap)]
 struct Query {
-    /// the path of the csv file
-    input: String,
     /// the name of the dataset
     dataset: String,
+    /// the path of the csv file
+    input: String,
     /// where to output csv
     output: String,
     /// the longest distance
@@ -75,11 +75,18 @@ fn main() -> Result<()> {
         SubCommand::Add(add) => {
             let path = data_dir()?;
             // create data directory
-            std::fs::create_dir_all(path).context("Cannot create subdir")?;
-            add_osm_pbf(
-                &add.path,
-                data_dir()?.to_str().context("Cannot convert to string")?,
-            )?;
+            std::fs::create_dir_all(&path).context("Cannot create subdir")?;
+            let dataset_path = path
+                .join(
+                    PathBuf::from(&add.path)
+                        .file_stem()
+                        .context("Cannot get file stem from input")?,
+                )
+                .with_extension("osm.pbf");
+            let dataset_path = dataset_path
+                .to_str()
+                .context("Cannot convert file to string")?;
+            add_osm_pbf(&add.path, dataset_path)?;
         }
         SubCommand::Export(export) => {
             let path = data_dir()?.join(export.name);
@@ -91,7 +98,9 @@ fn main() -> Result<()> {
         }
         SubCommand::Query(query) => {
             let dataset_path = data_dir()?.join(query.dataset);
-            let dataset_path = dataset_path.to_str().context("Caonnot convert dataset path to string")?;
+            let dataset_path = dataset_path
+                .to_str()
+                .context("Caonnot convert dataset path to string")?;
             query_csv(
                 &query.input,
                 &query.output,
