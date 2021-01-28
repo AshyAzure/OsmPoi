@@ -7,7 +7,7 @@ A tool for extracting poi information from the opentreemap file. It has both CLI
 
 ## Features
 - Extract poi from .osm.pbf file format
-- Support oth CLI and platform native GUI for macOS and Windows
+- Support both CLI and platform native GUI for macOS and Windows
 
 ## Getting Started
 
@@ -22,5 +22,5 @@ Refer to Github Wiki for documentation.
 This software is released under the MIT license.
 
 ## TODO
-- [] Add a progress bar
-- [] TUI embedded
+- [ ] Add a progress bar
+- [ ] TUI embedded
