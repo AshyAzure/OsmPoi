@@ -35,15 +35,22 @@ pub fn query_csv(
     output_path: &str,
     dataset_path: &str,
     distance: f32,
-    _strict: bool,
+    strict: bool,
 ) -> Result<()> {
     let conn = Connection::open(dataset_path)?;
-    let mut stmt = conn.prepare(
-        "SELECT poi_type, lat, lon, d_lat, d_lon, tags FROM poi 
-         WHERE lat BETWEEN ?1 AND ?2
-         AND lon BETWEEN ?3 AND ?4",
-    )?;
-
+    let mut stmt = if strict {
+        conn.prepare(
+            "SELECT poi_type, lat, lon, d_lat, d_lon, tags FROM poi 
+             WHERE lat BETWEEN ?1 AND ?2
+             AND lon BETWEEN ?3 AND ?4",
+        )?
+    } else {
+        conn.prepare(
+            "SELECT poi_type, lat, lon, d_lat, d_lon, tags FROM poi 
+             WHERE NOT ((lat - d_lat > ?2) OR (lat + d_lat < ?1)
+             OR (lon - d_lon > ?4) OR (lon + d_lon < ? 3))",
+        )?
+    };
     let inputs = read_csv(input_path)?;
     let mut res = Vec::new();
     for i in inputs {
@@ -64,12 +71,21 @@ pub fn query_csv(
                     lon: DecimicroLongitude(row.get(2)?).into(),
                     delta_lat: DecimicroLatitude(row.get(3)?).into(),
                     delta_lon: DecimicroLongitude(row.get(4)?).into(),
+                    distance: Distance::calculate(
+                        DecimicroLatitude(row.get(1)?).into(),
+                        DecimicroLongitude(row.get(2)?).into(),
+                        lat,
+                        lon,
+                    ),
                     tags: row.get(5)?,
                 })
             },
         )?;
         for r in query_rows {
-            let r = r?;
+            let r: OutputRecord = r?;
+            if r.distance.0 > distance.0 {
+                continue;
+            }
             res.push(r);
         }
     }
@@ -170,6 +186,7 @@ pub struct OutputRecord {
     pub lon: Longitude,
     pub delta_lat: Latitude,
     pub delta_lon: Longitude,
+    pub distance: Distance,
     pub tags: String,
 }
 

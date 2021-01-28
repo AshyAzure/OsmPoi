@@ -24,14 +24,14 @@ enum SubCommand {
 #[derive(Clap)]
 struct List;
 
-/// add new dataset, only .osm, .osm.pbf, .osm.poi file formats are acceptable
+/// add new dataset to your data directory, only .osm.pbf, .osm.poi file formats are acceptable
 #[derive(Clap)]
 struct Add {
-    /// the file to add
+    /// the source of the dataset
     path: String,
 }
 
-/// export dataset in osm.poi format
+/// export dataset from your data directory
 #[derive(Clap)]
 struct Export {
     /// the dataset to export
@@ -40,25 +40,27 @@ struct Export {
     path: String,
 }
 
-/// remove dataset
+/// remove dataset from your data directory
 #[derive(Clap)]
 struct Remove {
-    /// the file to remove
+    /// the dataset to remove
     name: String,
 }
 
-/// input the csv and get the output
-/// input csv
+/// query poi information from the dataset
 #[derive(Clap)]
 struct Query {
     /// the path of the csv file
-    input_path: String,
+    input: String,
     /// the name of the dataset
-    dataset_path: String,
+    dataset: String,
     /// where to output csv
-    output_path: String,
-    /// how long,
+    output: String,
+    /// the longest distance
     distance: f32,
+    /// to use strict mode or not
+    #[clap(short)]
+    strict: bool,
 }
 
 fn main() -> Result<()> {
@@ -84,16 +86,18 @@ fn main() -> Result<()> {
             std::fs::copy(path, export.path)?;
         }
         SubCommand::Rm(remove) => {
-            let path = data_dir()?.join(remove.name);
-            std::fs::remove_file(path)?;
+            let dataset_path = data_dir()?.join(remove.name);
+            std::fs::remove_file(dataset_path)?;
         }
         SubCommand::Query(query) => {
+            let dataset_path = data_dir()?.join(query.dataset);
+            let dataset_path = dataset_path.to_str().context("Caonnot convert dataset path to string")?;
             query_csv(
-                &query.input_path,
-                &query.output_path,
-                &query.dataset_path,
+                &query.input,
+                &query.output,
+                &dataset_path,
                 query.distance,
-                true,
+                query.strict,
             )?;
         }
     }
