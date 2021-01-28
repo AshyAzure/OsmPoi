@@ -1,6 +1,7 @@
-use ::osmpoi::*;
 use anyhow::{Context, Result};
 use clap::Clap;
+use osmpoi::*;
+use std::path::PathBuf;
 
 /// The cli version of osmpoi, which extract poi information from openstreetmap files.
 #[derive(Clap)]
@@ -46,12 +47,14 @@ struct Remove {
     name: String,
 }
 
+/// input the csv and get the output
+/// input csv
 #[derive(Clap)]
 struct Query {
     /// the path of the csv file
-    path: String,
+    input_path: String,
     /// the name of the dataset
-    name: String,
+    dataset_path: String,
     /// where to output csv
     output_path: String,
     /// how long,
@@ -69,8 +72,12 @@ fn main() -> Result<()> {
         }
         SubCommand::Add(add) => {
             let path = data_dir()?;
+            // create data directory
             std::fs::create_dir_all(path).context("Cannot create subdir")?;
-            add_osm_pbf(add.path)?;
+            add_osm_pbf(
+                &add.path,
+                data_dir()?.to_str().context("Cannot convert to string")?,
+            )?;
         }
         SubCommand::Export(export) => {
             let path = data_dir()?.join(export.name);
@@ -81,9 +88,37 @@ fn main() -> Result<()> {
             std::fs::remove_file(path)?;
         }
         SubCommand::Query(query) => {
-            query_csv(&query.path, &query.output_path, &query.name, query.distance)?;
+            query_csv(
+                &query.input_path,
+                &query.output_path,
+                &query.dataset_path,
+                query.distance,
+                true,
+            )?;
         }
     }
 
     Ok(())
+}
+
+/// get the data dir for the current system
+fn data_dir() -> Result<PathBuf> {
+    // create data_dirs
+    let mut path = dirs::data_dir().context("Cannot open application support folder")?;
+    path.push("osmpoi");
+    Ok(path)
+}
+
+fn list_data_dir() -> Result<Vec<String>> {
+    let mut ret = Vec::new();
+    for entry in std::fs::read_dir(data_dir()?)? {
+        let entry = entry?;
+        ret.push(
+            entry
+                .file_name()
+                .into_string()
+                .or(Err(anyhow::Error::msg("Cannot list dir")))?,
+        )
+    }
+    Ok(ret)
 }

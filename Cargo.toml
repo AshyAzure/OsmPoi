@@ -1,0 +1,6 @@
+[workspace]
+
+members = [
+	"osmpoi",
+	"ui/osmpoi-cli"
+]
