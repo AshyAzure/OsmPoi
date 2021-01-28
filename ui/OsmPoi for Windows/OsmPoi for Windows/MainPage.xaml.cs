@@ -26,5 +26,32 @@ namespace OsmPoi_for_Windows
         {
             this.InitializeComponent();
         }
+
+        private void NavigationView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
+        {
+            NavigationViewItem item = args.SelectedItem as NavigationViewItem;
+            if (item != null)
+            {
+                switch (item.Tag.ToString())
+                {
+                    case "Query":
+                        this.MainFrame.Navigate(typeof(QueryPage));
+                        break;
+
+                    case "Datasets":
+                        this.MainFrame.Navigate(typeof(DatasetPage));
+                        break;
+                }
+            }
+        }
+
+        private void NavigationView_Loaded(object sender, RoutedEventArgs e)
+        {
+            var item = sender as NavigationView;
+            if (item != null)
+            {
+                item.SelectedItem = item.MenuItems.ElementAt(0);
+            }
+        }
     }
 }

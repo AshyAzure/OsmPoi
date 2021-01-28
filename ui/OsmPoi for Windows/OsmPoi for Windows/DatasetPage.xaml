@@ -1,0 +1,39 @@
+﻿<Page
+    x:Class="OsmPoi_for_Windows.DatasetPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:OsmPoi_for_Windows"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <CommandBar
+            Grid.Row="0">
+            <AppBarButton Icon="Rename" Tag="Rename" Label="重命名" Click="AppBarButton_Click"/>
+            <AppBarButton Icon="Add" Tag="Add" Label="添加" Click="AppBarButton_Click" />
+            <AppBarButton Icon="Delete" Tag="Delete" Label="删除" Click="AppBarButton_Click" />
+        </CommandBar>
+
+        <ListView
+            Grid.Row="1"
+            SelectionMode="Single"
+            ItemsSource="{x:Bind Datasets}">
+            <ListView.Header>
+                <TextBlock Text="233" />
+            </ListView.Header>
+            <ListView.ItemTemplate>
+                <DataTemplate x:DataType="local:Dataset">
+                    <TextBlock Text="{x:Bind Name}" />
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+
+    </Grid>
+</Page>

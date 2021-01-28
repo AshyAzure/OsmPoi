@@ -9,6 +9,18 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid>
+        <NavigationView
+            AlwaysShowHeader="False"
+            Loaded="NavigationView_Loaded"
+            SelectionChanged="NavigationView_SelectionChanged">
+            <NavigationView.MenuItems>
+                <NavigationViewItem Content="查询 POI" Tag="Query" Icon="Find"/>
+                <NavigationViewItem Content="管理数据" Tag="Datasets" Icon="Manage"/>
+            </NavigationView.MenuItems>
+            <Frame x:Name="MainFrame"/>
+
+
+        </NavigationView>
 
     </Grid>
 </Page>
