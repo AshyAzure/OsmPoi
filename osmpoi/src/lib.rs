@@ -3,30 +3,16 @@ pub mod poi;
 use anyhow::Result;
 use csv::{ReaderBuilder, WriterBuilder};
 use derive_more::{Add, From, Sub};
-use osmpbfreader::OsmPbfReader;
-use poi::{cal_relations, cal_ways, refine, OsmPbfReaderExt};
-use rusqlite::{params, Connection, OpenFlags};
+use poi::*;
+use rusqlite::{params, Connection};
 use serde::{Deserialize, Serialize};
 use std::f32::consts::PI;
 
 pub fn add_osm_pbf(pbf_path: &str, dataset_path: &str) -> Result<()> {
-    let r = std::fs::File::open(pbf_path)?;
-    let mut pbf = OsmPbfReader::new(r);
-    let mut conn = Connection::open_with_flags(
-        dataset_path,
-        OpenFlags::SQLITE_OPEN_CREATE | OpenFlags::SQLITE_OPEN_READ_WRITE,
-    )?;
-    let mut tx = conn.transaction()?;
-    pbf.dump(&mut tx)?;
-    println!("dump success");
-    cal_ways(&mut tx)?;
-    println!("calculate way success");
-    cal_relations(&mut tx)?;
-    println!("calculate relation success");
-    refine(&mut tx)?;
-    println!("refine success");
-    println!("Finish!");
-    tx.commit()?;
+    dump(pbf_path, dataset_path)?;
+    calculate_ways(dataset_path)?;
+    calculate_relations(dataset_path)?;
+    refine(dataset_path)?;
     Ok(())
 }
 
@@ -38,17 +24,17 @@ pub fn query_csv(
     strict: bool,
 ) -> Result<()> {
     let conn = Connection::open(dataset_path)?;
+    // choose different select statement according to the strict flag
     let mut stmt = if strict {
         conn.prepare(
-            "SELECT poi_type, lat, lon, d_lat, d_lon, tags FROM poi 
-             WHERE lat BETWEEN ?1 AND ?2
-             AND lon BETWEEN ?3 AND ?4",
+            // in script mode, the center of poi must be inside your selecting box
+            "SELECT poi_type, lat, lon, d_lat, d_lon, tags FROM poi WHERE lat BETWEEN ?1 AND ?2 AND lon BETWEEN ?3 AND ?4"
         )?
+
     } else {
         conn.prepare(
-            "SELECT poi_type, lat, lon, d_lat, d_lon, tags FROM poi 
-             WHERE NOT ((lat - d_lat > ?2) OR (lat + d_lat < ?1)
-             OR (lon - d_lon > ?4) OR (lon + d_lon < ?3))",
+            // in non-strict mode, the poi box has intersection with your selecting box
+            "SELECT poi_type, lat, lon, d_lat, d_lon, tags FROM poi WHERE NOT ((lat - d_lat > ?2) OR (lat + d_lat < ?1) OR (lon - d_lon > ?4) OR (lon + d_lon < ?3))",
         )?
     };
     let inputs = read_csv(input_path)?;

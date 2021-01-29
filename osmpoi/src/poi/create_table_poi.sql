@@ -1,8 +1,0 @@
-CREATE TABLE poi (
-    poi_type INTEGER NOT NULL CHECK(poi_type BETWEEN 0 AND 2),
-    lat      INTEGER NOT NULL CHECK(lat BETWEEN -900000000 AND 900000000),
-    lon      INTEGER NOT NULL CHECK(lon BETWEEN -1800000000 AND 1800000000),
-    d_lat    INTEGER NOT NULL CHECK(d_lat >= 0),
-    d_lon    INTEGER NOT NULL CHECK(d_lon >= 0),
-    tags     TEXT
-);
