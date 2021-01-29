@@ -4,7 +4,7 @@ use osmpbfreader::{
     objects::{OsmId, OsmObj, Tags},
     OsmPbfReader,
 };
-use rusqlite::{params, Transaction, NO_PARAMS};
+use rusqlite::{params, Transaction, Connection, NO_PARAMS, OpenFlags};
 use serde_json::Map;
 use std::cmp::{max, min};
 use std::fs::File;
@@ -37,6 +37,96 @@ impl OsmCount {
             OsmObj::Relation(_) => self.relation += 1,
         }
     }
+}
+
+fn pbf_reader_from_path(path: &str) -> Result<OsmPbfReader<File>> {
+    let read = File::open(path)?;
+    Ok(OsmPbfReader::new(read))
+}
+
+pub fn count(path: &str) -> Result<OsmCount> {
+    let mut reader = pbf_reader_from_path(path)?;
+    let mut count = OsmCount::new();
+    for obj in reader.par_iter() {
+        match obj {
+            Ok(obj) => count.incr(obj),
+            Err(err) => {
+                return Err(err).context("Fail to read par_iter objects");
+            }
+        }
+    }
+    Ok(count)
+}
+
+pub fn dump(pbf_path: &str, db_path: &str) -> Result<()> {
+    // init the pbf reader
+    let mut reader = pbf_reader_from_path(pbf_path)?;
+
+    let mut conn = Connection::open_with_flags(
+        db_path,
+        OpenFlags::SQLITE_OPEN_CREATE | OpenFlags::SQLITE_OPEN_READ_WRITE,
+    )?;
+    let tx = conn.transaction()?;
+    // create databases
+    sql::create_nodes(&tx)?;
+    sql::create_ways(&tx)?;
+    sql::create_way_nodes(&tx)?;
+    sql::create_relationss(&tx)?;
+    sql::create_relation_references_index(&tx)?;
+    // dump file
+    let mut insert_nodes_stmt = sql::prepare_insert_nodes(&tx)?;
+    let mut insert_ways_stmt = sql::prepare_insert_ways(&tx)?;
+    let mut insert_way_nodes_stmt = sql::prepare_insert_way_nodes(&tx)?;
+    let mut insert_relations_stmt = sql::prepare_insert_relations(&tx)?;
+    let mut insert_relation_references_stmt = sql::prepare_insert_relation_references(&tx)?;
+    for obj in reader.par_iter() {
+        match obj {
+            Ok(obj) => match obj {
+                OsmObj::Node(n) => {
+                    insert_nodes_stmt.execute(params![
+                        n.id.0,
+                        n.decimicro_lat,
+                        n.decimicro_lon,
+                        tags_has_name(n.tags.clone()),
+                        tags_to_json_string(n.tags.clone()),
+                    ])?;
+                }
+                OsmObj::Way(w) => {
+                    insert_ways_stmt.execute(params![
+                        w.id.0,
+                        tags_has_name(w.tags.clone()),
+                        tags_to_json_string(w.tags.clone())
+                    ])?;
+                    for node_id in w.nodes {
+                        insert_way_nodes_stmt.execute(params![w.id.0, node_id.0])?;
+                    }
+                }
+                OsmObj::Relation(r) => {
+                    insert_relations_stmt.execute(params![
+                        r.id.0,
+                        tags_has_name(r.tags.clone()),
+                        tags_to_json_string(r.tags.clone())
+                    ])?;
+                    for reference in r.refs {
+                        let member = reference.member;
+                        insert_relation_references_stmt.execute(params![
+                            r.id.0,
+                            member.inner_id(),
+                            match member {
+                                OsmId::Node(_) => 0,
+                                OsmId::Way(_) => 1,
+                                OsmId::Relation(_) => 2,
+                            }
+                        ])?;
+                    }
+                }
+            },
+            Err(err) => {
+                return Err(err).context("Fail to read par_iter objects");
+            }
+        }
+    }
+    Ok(())
 }
 
 /// A light extension to the OsmPbfReader
