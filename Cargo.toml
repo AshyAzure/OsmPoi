@@ -1,6 +1,2 @@
 [workspace]
-
-members = [
-	"osmpoi",
-	"ui/osmpoi-cli"
-]
+members = ["osmpoi", "ui/osmpoi-cli"]

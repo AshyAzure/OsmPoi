@@ -12,9 +12,9 @@ use std::fs::File;
 /// A struct that represents the counts of different elements in a file.
 #[derive(Debug)]
 pub struct OsmCount {
-    pub node: u64,
-    pub way: u64,
-    pub relation: u64,
+    pub node: i64,
+    pub way: i64,
+    pub relation: i64,
 }
 
 impl OsmCount {
@@ -176,7 +176,7 @@ fn nullable_max(a: NullableI32, b: NullableI32, c: NullableI32) -> Result<i32> {
 }
 
 /// calculate the lat and lon range of the way
-pub fn calculate_ways(dataset_path: &str) -> Result<()> {
+pub fn parse_ways(dataset_path: &str) -> Result<()> {
     let conn = Connection::open(dataset_path)?;
     let mut all_ways = conn.prepare("SELECT way_id FROM ways;")?;
     let mut query_way = conn.prepare("SELECT MIN(lat), MAX(lat), MIN(lon), MAX(lon) FROM nodes WHERE node_id IN (SELECT node_id FROM way_nodes WHERE way_id = ?);")?;
@@ -194,7 +194,7 @@ pub fn calculate_ways(dataset_path: &str) -> Result<()> {
 }
 
 /// calculate the lat and lon range of the relation
-pub fn calculate_relations(dataset_path: &str) -> Result<()> {
+pub fn parse_relations(dataset_path: &str) -> Result<()> {
     let conn = Connection::open(dataset_path)?;
     let mut all_relations = conn.prepare("SELECT relation_id FROM relations WHERE dep = 0;")?;
     let mut update_relation = conn.prepare("UPDATE relations SET dep = 1, lat_lb = ?1, lon_lb = ?2, lat_rt = ?3, lon_rt = ?4 WHERE relation_id = ?5;")?;

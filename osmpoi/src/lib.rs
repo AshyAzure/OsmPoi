@@ -1,20 +1,15 @@
+pub mod ffi;
 pub mod poi;
 
 use anyhow::Result;
 use csv::{ReaderBuilder, WriterBuilder};
 use derive_more::{Add, From, Sub};
-use poi::*;
 use rusqlite::{params, Connection};
 use serde::{Deserialize, Serialize};
 use std::f32::consts::PI;
 
-pub fn add_osm_pbf(pbf_path: &str, dataset_path: &str) -> Result<()> {
-    dump(pbf_path, dataset_path)?;
-    calculate_ways(dataset_path)?;
-    calculate_relations(dataset_path)?;
-    refine(dataset_path)?;
-    Ok(())
-}
+pub use ffi::*;
+pub use poi::*;
 
 pub fn query_csv(
     input_path: &str,
@@ -30,7 +25,6 @@ pub fn query_csv(
             // in script mode, the center of poi must be inside your selecting box
             "SELECT poi_type, lat, lon, d_lat, d_lon, tags FROM poi WHERE lat BETWEEN ?1 AND ?2 AND lon BETWEEN ?3 AND ?4"
         )?
-
     } else {
         conn.prepare(
             // in non-strict mode, the poi box has intersection with your selecting box

@@ -1,48 +1,25 @@
-#![allow(non_camel_case_types)]
-
-use super::poi::{OsmCount, OsmPbfReaderExt};
-use osmpbfreader::OsmPbfReader;
-use rusqlite::Transaction;
+use super::{count, dump, parse_relations, parse_ways, query_csv, refine, OsmCount};
 use std::ffi::CStr;
-use std::fs::File;
 
 /// The C representation type of OsmCount.
 #[repr(C)]
+#[allow(non_camel_case_types)]
 pub struct OSMPOI_OsmCount {
-    pub node: u64,
-    pub way: u64,
-    pub relation: u64,
+    pub node: i64,
+    pub way: i64,
+    pub relation: i64,
 }
 
-type OsmPbfFileReader = OsmPbfReader<File>;
-
-/// create an osmpbfreader
-/// # Safety
 #[no_mangle]
-pub unsafe extern "C" fn osmpoi_create_reader(path: *const i8) -> *mut OsmPbfFileReader {
-    if let Ok(path) = CStr::from_ptr(path).to_str() {
-        if let Ok(read) = File::open(path) {
-            Box::into_raw(Box::new(OsmPbfReader::new(read)))
-        } else {
-            std::ptr::null_mut()
-        }
-    } else {
-        std::ptr::null_mut()
-    }
-}
-
-/// count the reader
-/// # Safety
-#[no_mangle]
-pub unsafe extern "C" fn osmpoi_count_reader(pbf: *mut OsmPbfFileReader) -> OSMPOI_OsmCount {
-    if let Some(pbf) = pbf.as_mut() {
-        match pbf.count() {
-            Ok(count) => {
+pub unsafe extern "C" fn osmpoi_count(path: *const i8) -> OSMPOI_OsmCount {
+    match CStr::from_ptr(path).to_str() {
+        Ok(path) => match count(path) {
+            Ok(osm_count) => {
                 let OsmCount {
                     node,
                     way,
                     relation,
-                } = count;
+                } = osm_count;
                 OSMPOI_OsmCount {
                     node,
                     way,
@@ -50,43 +27,85 @@ pub unsafe extern "C" fn osmpoi_count_reader(pbf: *mut OsmPbfFileReader) -> OSMP
                 }
             }
             Err(_) => OSMPOI_OsmCount {
-                node: 0,
-                way: 0,
-                relation: 0,
+                node: -2,
+                way: -2,
+                relation: -2,
             },
-        }
-    } else {
-        OSMPOI_OsmCount {
-            node: 0,
-            way: 0,
-            relation: 0,
-        }
+        },
+        Err(_) => OSMPOI_OsmCount {
+            node: -1,
+            way: -1,
+            relation: -1,
+        },
     }
 }
 
-/// dump the reader
-/// # Safety
 #[no_mangle]
-pub unsafe extern "C" fn osmpoi_dump_reader(
-    pbf: *mut OsmPbfFileReader,
-    tx: *mut Transaction,
-) -> i32 {
-    if let (Some(pbf), Some(tx)) = (pbf.as_mut(), tx.as_mut()) {
-        match pbf.dump(tx) {
+pub unsafe extern "C" fn osmpoi_dump(pbf_path: *const i8, db_path: *const i8) -> i32 {
+    match (
+        CStr::from_ptr(pbf_path).to_str(),
+        CStr::from_ptr(db_path).to_str(),
+    ) {
+        (Ok(pbf_path), Ok(db_path)) => match dump(pbf_path, db_path) {
             Ok(_) => 0,
-            Err(_) => -1,
-        }
-    } else {
-        -2
+            Err(_) => -2,
+        },
+        _ => -1,
     }
 }
 
-/// destroy the reader
-/// # Safety
-pub unsafe extern "C" fn osmpoi_destroy_reader(pbf: *mut OsmPbfFileReader) -> i32 {
-    if !pbf.is_null() {
-        let _ = Box::from_raw(pbf); // get box and drop
-        return 0;
+#[no_mangle]
+pub unsafe extern "C" fn osmpoi_parse_ways(dataset_path: *const i8) -> i32 {
+    match CStr::from_ptr(dataset_path).to_str() {
+        Ok(dataset_path) => match parse_ways(dataset_path) {
+            Ok(_) => 0,
+            Err(_) => -2,
+        },
+        Err(_) => -1,
     }
-    -1
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn osmpoi_parse_relations(dataset_path: *const i8) -> i32 {
+    match CStr::from_ptr(dataset_path).to_str() {
+        Ok(dataset_path) => match parse_relations(dataset_path) {
+            Ok(_) => 0,
+            Err(_) => -2,
+        },
+        Err(_) => -1,
+    }
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn osmpoi_refine(dataset_path: *const i8) -> i32 {
+    match CStr::from_ptr(dataset_path).to_str() {
+        Ok(dataset_path) => match refine(dataset_path) {
+            Ok(_) => 0,
+            Err(_) => -2,
+        },
+        Err(_) => -1,
+    }
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn osmpoi_query_csv(
+    input_path: *const i8,
+    output_path: *const i8,
+    dataset_path: *const i8,
+    distance: f32,
+    strict: bool,
+) -> i32 {
+    match (
+        CStr::from_ptr(input_path).to_str(),
+        CStr::from_ptr(output_path).to_str(),
+        CStr::from_ptr(dataset_path).to_str(),
+    ) {
+        (Ok(input_path), Ok(output_path), Ok(dataset_path)) => {
+            match query_csv(input_path, output_path, dataset_path, distance, strict) {
+                Ok(_) => 0,
+                Err(_) => -2,
+            }
+        }
+        _ => -1,
+    }
 }
