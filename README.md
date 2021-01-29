@@ -2,12 +2,12 @@
 
 ![build and test](https://github.com/xubaiw/osmpoi/workflows/build%20and%20test/badge.svg)
 
-A tool for extracting poi information from the opentreemap file. It has both CLI version and GUI version.
+A tool for extracting poi information from the opentreemap file.
 
 ## Features
 
 - Extract poi from .osm.pbf file format
-- Support both CLI and wepage GUI
+- CLI version, GUI in progress
 
 ## Getting Started (WIP)
 
