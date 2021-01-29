@@ -11,9 +11,9 @@ A tool for extracting poi information from the opentreemap file.
 
 ## Getting Started (WIP)
 
-Go to the release page to download pre-built binaries.
+Go to the (Releases)[https://github.com/xubaiw/osmpoi/releases] page to download pre-built binaries.
 
-Refer to Github Wiki for documentation.
+Refer to (Github Wiki)[https://github.com/xubaiw/osmpoi/wiki] for detailed documentation.
 
 ## License
 
