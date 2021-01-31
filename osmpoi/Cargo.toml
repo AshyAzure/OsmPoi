@@ -5,7 +5,7 @@ authors = ["Xubai Wang <kindredwekingwang@gmail.com>"]
 edition = "2018"
 
 [lib]
-crate-type = ["lib", "staticlib"]
+crate-type = ["lib", "cdylib"]
 
 [dependencies]
 clap = "3.0.0-beta.2"

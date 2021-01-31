@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		B36F3E0B25C6BF0F00C9F39E /* libosmpoi.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B3748A2D25C6B03500B2DC61 /* libosmpoi.a */; };
 		B38E039E25C5A49800EF4813 /* QueryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B38E039D25C5A49800EF4813 /* QueryView.swift */; };
 		B38E03A325C5A4A500EF4813 /* DatasetsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B38E03A225C5A4A500EF4813 /* DatasetsView.swift */; };
 		B38E03AB25C5B8F000EF4813 /* DataDirectory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B38E03AA25C5B8F000EF4813 /* DataDirectory.swift */; };
@@ -18,6 +17,8 @@
 		B3DB622625C305960038826E /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B3DB622525C305960038826E /* Preview Assets.xcassets */; };
 		B3DB623225C305960038826E /* OsmPoi_for_MacOSTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3DB623125C305960038826E /* OsmPoi_for_MacOSTests.swift */; };
 		B3DB623D25C305960038826E /* OsmPoi_for_MacOSUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3DB623C25C305960038826E /* OsmPoi_for_MacOSUITests.swift */; };
+		B3FAC81325C6DDDC00C220CD /* libosmpoi.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B391AA8A25C4028300223132 /* libosmpoi.dylib */; };
+		B3FAC81425C6DDDC00C220CD /* libosmpoi.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = B391AA8A25C4028300223132 /* libosmpoi.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -38,13 +39,15 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		B3748A3525C6B0DB00B2DC61 /* CopyFiles */ = {
+		B3FAC81525C6DDDC00C220CD /* Embed Libraries */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				B3FAC81425C6DDDC00C220CD /* libosmpoi.dylib in Embed Libraries */,
 			);
+			name = "Embed Libraries";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -77,7 +80,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B36F3E0B25C6BF0F00C9F39E /* libosmpoi.a in Frameworks */,
+				B3FAC81325C6DDDC00C220CD /* libosmpoi.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -179,10 +182,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = B3DB624125C305960038826E /* Build configuration list for PBXNativeTarget "OsmPoi for MacOS" */;
 			buildPhases = (
+				B3FAC84325C6F7D100C220CD /* ShellScript */,
 				B3DB621725C305940038826E /* Sources */,
 				B3DB621825C305940038826E /* Frameworks */,
 				B3DB621925C305940038826E /* Resources */,
-				B3748A3525C6B0DB00B2DC61 /* CopyFiles */,
+				B3FAC81525C6DDDC00C220CD /* Embed Libraries */,
 			);
 			buildRules = (
 			);
@@ -301,6 +305,26 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		B3FAC84325C6F7D100C220CD /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "install_name_tool -id \"@rpath/libosmpoi.dylib\" ../../target/release/libosmpoi.dylib\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		B3DB621725C305940038826E /* Sources */ = {
@@ -473,10 +497,10 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = "OsmPoi for MacOS/OsmPoi_for_MacOS.entitlements";
 				CODE_SIGN_IDENTITY = "-";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"OsmPoi for MacOS/Preview Content\"";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 68GLFMB9Z9;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				HEADER_SEARCH_PATHS = "$(SRCROOT)/../../osmpoi/include/";
@@ -487,6 +511,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/../../target/release/";
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				MARKETING_VERSION = "0.1-alpha";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.interflow.OsmPoi-for-MacOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -504,10 +529,10 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = "OsmPoi for MacOS/OsmPoi_for_MacOS.entitlements";
 				CODE_SIGN_IDENTITY = "-";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"OsmPoi for MacOS/Preview Content\"";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 68GLFMB9Z9;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				HEADER_SEARCH_PATHS = "$(SRCROOT)/../../osmpoi/include/";
@@ -518,6 +543,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/../../target/release/";
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				MARKETING_VERSION = "0.1-alpha";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.interflow.OsmPoi-for-MacOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
