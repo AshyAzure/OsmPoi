@@ -5,7 +5,7 @@ authors = ["Xubai Wang <kindredwekingwang@gmail.com>"]
 edition = "2018"
 
 [lib]
-crate-type = ["cdylib", "rlib"]
+crate-type = ["lib", "cdylib"]
 
 [dependencies]
 anyhow = "1.0.38"
