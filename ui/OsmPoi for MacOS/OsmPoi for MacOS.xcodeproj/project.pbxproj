@@ -7,8 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		B3748A4525C6B2EE00B2DC61 /* libosmpoi.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B3748A4425C6B2EE00B2DC61 /* libosmpoi.dylib */; };
-		B3748A4C25C6B3F500B2DC61 /* libosmpoi.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = B3748A4425C6B2EE00B2DC61 /* libosmpoi.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		B36F3E0B25C6BF0F00C9F39E /* libosmpoi.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B3748A2D25C6B03500B2DC61 /* libosmpoi.a */; };
 		B38E039E25C5A49800EF4813 /* QueryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B38E039D25C5A49800EF4813 /* QueryView.swift */; };
 		B38E03A325C5A4A500EF4813 /* DatasetsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B38E03A225C5A4A500EF4813 /* DatasetsView.swift */; };
 		B38E03AB25C5B8F000EF4813 /* DataDirectory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B38E03AA25C5B8F000EF4813 /* DataDirectory.swift */; };
@@ -45,7 +44,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				B3748A4C25C6B3F500B2DC61 /* libosmpoi.dylib in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -53,8 +51,6 @@
 
 /* Begin PBXFileReference section */
 		B3748A2D25C6B03500B2DC61 /* libosmpoi.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libosmpoi.a; path = ../../target/release/libosmpoi.a; sourceTree = "<group>"; };
-		B3748A4125C6B2AD00B2DC61 /* libosmpoi.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = libosmpoi.h; path = ../../../osmpoi/include/libosmpoi.h; sourceTree = "<group>"; };
-		B3748A4425C6B2EE00B2DC61 /* libosmpoi.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libosmpoi.dylib; path = ../../../target/release/libosmpoi.dylib; sourceTree = "<group>"; };
 		B38E039D25C5A49800EF4813 /* QueryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueryView.swift; sourceTree = "<group>"; };
 		B38E03A225C5A4A500EF4813 /* DatasetsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatasetsView.swift; sourceTree = "<group>"; };
 		B38E03AA25C5B8F000EF4813 /* DataDirectory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataDirectory.swift; sourceTree = "<group>"; };
@@ -81,7 +77,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B3748A4525C6B2EE00B2DC61 /* libosmpoi.dylib in Frameworks */,
+				B36F3E0B25C6BF0F00C9F39E /* libosmpoi.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -135,8 +131,6 @@
 		B3DB621D25C305940038826E /* OsmPoi for MacOS */ = {
 			isa = PBXGroup;
 			children = (
-				B3748A4125C6B2AD00B2DC61 /* libosmpoi.h */,
-				B3748A4425C6B2EE00B2DC61 /* libosmpoi.dylib */,
 				B3DB621E25C305940038826E /* OsmPoi_for_MacOSApp.swift */,
 				B3DB622025C305940038826E /* ContentView.swift */,
 				B38E039D25C5A49800EF4813 /* QueryView.swift */,
@@ -485,7 +479,7 @@
 				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
-				HEADER_SEARCH_PATHS = "";
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/../../osmpoi/include/";
 				INFOPLIST_FILE = "OsmPoi for MacOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -516,7 +510,7 @@
 				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
-				HEADER_SEARCH_PATHS = "";
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/../../osmpoi/include/";
 				INFOPLIST_FILE = "OsmPoi for MacOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
