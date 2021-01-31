@@ -9,6 +9,10 @@ A tool for extracting poi information from the opentreemap file.
 - Extract poi from .osm.pbf file format
 - CLI version, GUI in progress
 
+## Screenshots
+
+![screenshot for macOS](https://github.com/xubaiw/osmpoi/blob/main/images/screenshot-mac.png?raw=true)
+
 ## Getting Started (WIP)
 
 Go to the [Releases](https://github.com/xubaiw/osmpoi/releases) page to download pre-built binaries.

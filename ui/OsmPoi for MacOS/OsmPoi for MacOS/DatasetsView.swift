@@ -15,6 +15,13 @@ struct DatasetsView: View {
     
     var body: some View {
         List {
+            GeometryReader { geo in
+                HStack {
+                    Text("名称")
+                        .frame(width: geo.size.width * 0.8, alignment: .leading)
+                    Text("文件大小")
+                }
+            }
             ForEach(dataDirectory.files) { url in
                 GeometryReader { geo in
                     HStack {
@@ -39,7 +46,7 @@ struct DatasetsView: View {
         .toolbar {
             ToolbarItem {
                 Button(action: dataDirectory.createFile, label: {
-                    Image(systemName: "plus.square")
+                    Image(systemName: "plus")
                 })
             }
             ToolbarItem {

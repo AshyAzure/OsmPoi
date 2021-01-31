@@ -11,6 +11,8 @@
 		B38E03A325C5A4A500EF4813 /* DatasetsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B38E03A225C5A4A500EF4813 /* DatasetsView.swift */; };
 		B38E03AB25C5B8F000EF4813 /* DataDirectory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B38E03AA25C5B8F000EF4813 /* DataDirectory.swift */; };
 		B3AB2DC225C5DE640014FF18 /* URL+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3AB2DC125C5DE640014FF18 /* URL+.swift */; };
+		B3AB2DEE25C663FC0014FF18 /* libosmpoi.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B391AA8A25C4028300223132 /* libosmpoi.dylib */; };
+		B3AB2DEF25C663FC0014FF18 /* libosmpoi.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = B391AA8A25C4028300223132 /* libosmpoi.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		B3DB621F25C305940038826E /* OsmPoi_for_MacOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3DB621E25C305940038826E /* OsmPoi_for_MacOSApp.swift */; };
 		B3DB622125C305940038826E /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3DB622025C305940038826E /* ContentView.swift */; };
 		B3DB622325C305960038826E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B3DB622225C305960038826E /* Assets.xcassets */; };
@@ -36,12 +38,27 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		B3AB2DF025C663FC0014FF18 /* Embed Libraries */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				B3AB2DEF25C663FC0014FF18 /* libosmpoi.dylib in Embed Libraries */,
+			);
+			name = "Embed Libraries";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		B38E039D25C5A49800EF4813 /* QueryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueryView.swift; sourceTree = "<group>"; };
 		B38E03A225C5A4A500EF4813 /* DatasetsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatasetsView.swift; sourceTree = "<group>"; };
 		B38E03AA25C5B8F000EF4813 /* DataDirectory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataDirectory.swift; sourceTree = "<group>"; };
 		B391AA8A25C4028300223132 /* libosmpoi.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libosmpoi.dylib; path = ../../target/release/libosmpoi.dylib; sourceTree = "<group>"; };
 		B3AB2DC125C5DE640014FF18 /* URL+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URL+.swift"; sourceTree = "<group>"; };
+		B3AB2DD225C661D90014FF18 /* OsmPoi for MacOS-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "OsmPoi for MacOS-Bridging-Header.h"; sourceTree = "<group>"; };
 		B3DB621B25C305940038826E /* OsmPoi for MacOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "OsmPoi for MacOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B3DB621E25C305940038826E /* OsmPoi_for_MacOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OsmPoi_for_MacOSApp.swift; sourceTree = "<group>"; };
 		B3DB622025C305940038826E /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -62,6 +79,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B3AB2DEE25C663FC0014FF18 /* libosmpoi.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -124,6 +142,7 @@
 				B3DB622725C305960038826E /* Info.plist */,
 				B3DB622825C305960038826E /* OsmPoi_for_MacOS.entitlements */,
 				B3DB622425C305960038826E /* Preview Content */,
+				B3AB2DD225C661D90014FF18 /* OsmPoi for MacOS-Bridging-Header.h */,
 			);
 			path = "OsmPoi for MacOS";
 			sourceTree = "<group>";
@@ -164,6 +183,7 @@
 				B3DB621725C305940038826E /* Sources */,
 				B3DB621825C305940038826E /* Frameworks */,
 				B3DB621925C305940038826E /* Resources */,
+				B3AB2DF025C663FC0014FF18 /* Embed Libraries */,
 			);
 			buildRules = (
 			);
@@ -223,6 +243,7 @@
 				TargetAttributes = {
 					B3DB621A25C305940038826E = {
 						CreatedOnToolsVersion = 12.3;
+						LastSwiftMigration = 1230;
 					};
 					B3DB622C25C305960038826E = {
 						CreatedOnToolsVersion = 12.3;
@@ -448,21 +469,28 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = "OsmPoi for MacOS/OsmPoi_for_MacOS.entitlements";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"OsmPoi for MacOS/Preview Content\"";
-				DEVELOPMENT_TEAM = 68GLFMB9Z9;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/../../osmpoi/include/";
 				INFOPLIST_FILE = "OsmPoi for MacOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/../../target/release/";
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.interflow.OsmPoi-for-MacOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_OBJC_BRIDGING_HEADER = "OsmPoi for MacOS/OsmPoi for MacOS-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
@@ -472,21 +500,27 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = "OsmPoi for MacOS/OsmPoi_for_MacOS.entitlements";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"OsmPoi for MacOS/Preview Content\"";
-				DEVELOPMENT_TEAM = 68GLFMB9Z9;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/../../osmpoi/include/";
 				INFOPLIST_FILE = "OsmPoi for MacOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/../../target/release/";
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.interflow.OsmPoi-for-MacOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_OBJC_BRIDGING_HEADER = "OsmPoi for MacOS/OsmPoi for MacOS-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
