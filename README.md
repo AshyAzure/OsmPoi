@@ -7,7 +7,7 @@ A tool for extracting poi information from the opentreemap file.
 ## Features
 
 - Extract poi from .osm.pbf file format
-- CLI version, GUI in progress
+- CLI and macOS GUI, windows in progress
 
 
 ## Getting Started (WIP)
@@ -22,4 +22,4 @@ This software is released under the MIT license.
 
 ## TODO
 - [ ] Add a progress bar
-- [ ] Native GUI, blocked until I can figure out an elegant way to integrate Rust with the Visual Studio / Xcode build system
+- [ ] Windows GUI, blocked until I can figure out an elegant way to integrate Rust with the Visual Studio build system
