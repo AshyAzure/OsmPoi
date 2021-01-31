@@ -9,9 +9,11 @@ import SwiftUI
 
 @main
 struct OsmPoi_for_MacOSApp: App {
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
         }
+        .windowToolbarStyle(UnifiedWindowToolbarStyle())
     }
 }
