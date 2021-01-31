@@ -7,12 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B35DF21925C69A7600A9D1BF /* libosmpoi.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B35DF20F25C699FA00A9D1BF /* libosmpoi.dylib */; };
+		B3748A2325C69B9100B2DC61 /* libosmpoi.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = B35DF20F25C699FA00A9D1BF /* libosmpoi.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		B38E039E25C5A49800EF4813 /* QueryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B38E039D25C5A49800EF4813 /* QueryView.swift */; };
 		B38E03A325C5A4A500EF4813 /* DatasetsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B38E03A225C5A4A500EF4813 /* DatasetsView.swift */; };
 		B38E03AB25C5B8F000EF4813 /* DataDirectory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B38E03AA25C5B8F000EF4813 /* DataDirectory.swift */; };
 		B3AB2DC225C5DE640014FF18 /* URL+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3AB2DC125C5DE640014FF18 /* URL+.swift */; };
-		B3AB2DEE25C663FC0014FF18 /* libosmpoi.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B391AA8A25C4028300223132 /* libosmpoi.dylib */; };
-		B3AB2DEF25C663FC0014FF18 /* libosmpoi.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = B391AA8A25C4028300223132 /* libosmpoi.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		B3DB621F25C305940038826E /* OsmPoi_for_MacOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3DB621E25C305940038826E /* OsmPoi_for_MacOSApp.swift */; };
 		B3DB622125C305940038826E /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3DB622025C305940038826E /* ContentView.swift */; };
 		B3DB622325C305960038826E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B3DB622225C305960038826E /* Assets.xcassets */; };
@@ -39,13 +39,13 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		B3AB2DF025C663FC0014FF18 /* Embed Libraries */ = {
+		B3748A2425C69B9100B2DC61 /* Embed Libraries */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				B3AB2DEF25C663FC0014FF18 /* libosmpoi.dylib in Embed Libraries */,
+				B3748A2325C69B9100B2DC61 /* libosmpoi.dylib in Embed Libraries */,
 			);
 			name = "Embed Libraries";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -53,6 +53,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		B35DF20F25C699FA00A9D1BF /* libosmpoi.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libosmpoi.dylib; path = ../../target/release/libosmpoi.dylib; sourceTree = "<group>"; };
 		B38E039D25C5A49800EF4813 /* QueryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueryView.swift; sourceTree = "<group>"; };
 		B38E03A225C5A4A500EF4813 /* DatasetsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatasetsView.swift; sourceTree = "<group>"; };
 		B38E03AA25C5B8F000EF4813 /* DataDirectory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataDirectory.swift; sourceTree = "<group>"; };
@@ -79,7 +80,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B3AB2DEE25C663FC0014FF18 /* libosmpoi.dylib in Frameworks */,
+				B35DF21925C69A7600A9D1BF /* libosmpoi.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -111,6 +112,7 @@
 		B3DB621225C305940038826E = {
 			isa = PBXGroup;
 			children = (
+				B35DF20F25C699FA00A9D1BF /* libosmpoi.dylib */,
 				B3DB621D25C305940038826E /* OsmPoi for MacOS */,
 				B3DB623025C305960038826E /* OsmPoi for MacOSTests */,
 				B3DB623B25C305960038826E /* OsmPoi for MacOSUITests */,
@@ -183,7 +185,7 @@
 				B3DB621725C305940038826E /* Sources */,
 				B3DB621825C305940038826E /* Frameworks */,
 				B3DB621925C305940038826E /* Resources */,
-				B3AB2DF025C663FC0014FF18 /* Embed Libraries */,
+				B3748A2425C69B9100B2DC61 /* Embed Libraries */,
 			);
 			buildRules = (
 			);
@@ -386,6 +388,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				EXCLUDED_ARCHS = arm64;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -447,6 +450,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				EXCLUDED_ARCHS = arm64;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
