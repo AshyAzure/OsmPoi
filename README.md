@@ -16,10 +16,6 @@ A tool for extracting poi information from the opentreemap file.
 srcset="https://github.com/xubaiw/osmpoi/blob/main/images/screenshot-mac-dark.png?raw=true"
 media="(prefers-color-scheme: dark)"
 />
-<source
-srcset="https://github.com/xubaiw/osmpoi/blob/main/images/screenshot-mac.png?raw=true"
-media="(prefers-color-scheme: light)"
-/>
 <img src="https://github.com/xubaiw/osmpoi/blob/main/images/screenshot-mac.png?raw=true" loading="lazy" />
 </picture>
 
