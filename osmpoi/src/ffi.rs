@@ -1,5 +1,6 @@
 use super::{count, dump, parse_relations, parse_ways, query_csv, refine, OsmCount};
 use std::ffi::CStr;
+use std::os::raw::c_char;
 
 /// The C representation type of OsmCount.
 #[repr(C)]
@@ -11,7 +12,7 @@ pub struct OSMPOI_OsmCount {
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn osmpoi_count(path: *const i8) -> OSMPOI_OsmCount {
+pub unsafe extern "C" fn osmpoi_count(path: *const c_char) -> OSMPOI_OsmCount {
     match CStr::from_ptr(path).to_str() {
         Ok(path) => match count(path) {
             Ok(osm_count) => {
@@ -41,7 +42,7 @@ pub unsafe extern "C" fn osmpoi_count(path: *const i8) -> OSMPOI_OsmCount {
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn osmpoi_dump(pbf_path: *const i8, db_path: *const i8) -> i32 {
+pub unsafe extern "C" fn osmpoi_dump(pbf_path: *const c_char, db_path: *const c_char) -> i32 {
     match (
         CStr::from_ptr(pbf_path).to_str(),
         CStr::from_ptr(db_path).to_str(),
@@ -55,7 +56,7 @@ pub unsafe extern "C" fn osmpoi_dump(pbf_path: *const i8, db_path: *const i8) ->
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn osmpoi_parse_ways(dataset_path: *const i8) -> i32 {
+pub unsafe extern "C" fn osmpoi_parse_ways(dataset_path: *const c_char) -> i32 {
     match CStr::from_ptr(dataset_path).to_str() {
         Ok(dataset_path) => match parse_ways(dataset_path) {
             Ok(_) => 0,
@@ -66,7 +67,7 @@ pub unsafe extern "C" fn osmpoi_parse_ways(dataset_path: *const i8) -> i32 {
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn osmpoi_parse_relations(dataset_path: *const i8) -> i32 {
+pub unsafe extern "C" fn osmpoi_parse_relations(dataset_path: *const c_char) -> i32 {
     match CStr::from_ptr(dataset_path).to_str() {
         Ok(dataset_path) => match parse_relations(dataset_path) {
             Ok(_) => 0,
@@ -77,7 +78,7 @@ pub unsafe extern "C" fn osmpoi_parse_relations(dataset_path: *const i8) -> i32 
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn osmpoi_refine(dataset_path: *const i8) -> i32 {
+pub unsafe extern "C" fn osmpoi_refine(dataset_path: *const c_char) -> i32 {
     match CStr::from_ptr(dataset_path).to_str() {
         Ok(dataset_path) => match refine(dataset_path) {
             Ok(_) => 0,
@@ -89,9 +90,9 @@ pub unsafe extern "C" fn osmpoi_refine(dataset_path: *const i8) -> i32 {
 
 #[no_mangle]
 pub unsafe extern "C" fn osmpoi_query_csv(
-    input_path: *const i8,
-    output_path: *const i8,
-    dataset_path: *const i8,
+    input_path: *const c_char,
+    output_path: *const c_char,
+    dataset_path: *const c_char,
     distance: f32,
     strict: bool,
 ) -> i32 {
