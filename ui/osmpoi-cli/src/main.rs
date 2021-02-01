@@ -22,7 +22,7 @@ fn main() -> Result<()> {
                         .file_stem()
                         .context("Cannot get file stem from input")?,
                 )
-                .with_extension("osm.pbf");
+                .with_extension("osm.poi");
             let dataset_path = dataset_path
                 .to_str()
                 .context("Cannot convert file to string")?;

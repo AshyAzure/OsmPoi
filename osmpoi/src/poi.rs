@@ -59,38 +59,37 @@ pub fn dump(pbf_path: &str, db_path: &str) -> Result<()> {
     // init the pbf reader
     let mut reader = pbf_reader_from_path(pbf_path)?;
 
-    let mut conn = Connection::open_with_flags(
+    let conn = Connection::open_with_flags(
         db_path,
         OpenFlags::SQLITE_OPEN_CREATE | OpenFlags::SQLITE_OPEN_READ_WRITE,
     )?;
-    let tx = conn.transaction()?;
     // create databases
 
-    tx.execute("CREATE TABLE nodes (node_id INTEGER PRIMARY KEY NOT NULL CHECK(node_id >= 0), lat INTEGER NOT NULL CHECK(lat BETWEEN -900000000 AND 900000000), lon INTEGER NOT NULL CHECK(lat BETWEEN -1800000000 AND 1800000000), has_name INTEGER NOT NULL, tags TEXT);", NO_PARAMS)?;
-    tx.execute("CREATE TABLE ways (way_id INTEGER PRIMARY KEY NOT NULL CHECK(way_id >= 0), lat_lb INTEGER NOT NULL CHECK(lat_lb BETWEEN -900000000 AND 900000000) DEFAULT 0, lon_lb INTEGER NOT NULL CHECK(lon_lb BETWEEN -1800000000 AND 1800000000) DEFAULT 0, lat_rt INTEGER NOT NULL CHECK(lat_rt BETWEEN lat_lb AND 900000000) DEFAULT 0, lon_rt INTEGER NOT NULL CHECK(lon_rt BETWEEN lon_lb AND 1800000000) DEFAULT 0, has_name INTEGER NOT NULL, tags TEXT);", NO_PARAMS)?;
-    tx.execute("CREATE TABLE way_nodes (way_id INTEGER NOT NULL CHECK(way_id >= 0),node_id INTEGER NOT NULL CHECK(node_id >= 0));", NO_PARAMS)?;
-    tx.execute(
+    conn.execute("CREATE TABLE nodes (node_id INTEGER PRIMARY KEY NOT NULL CHECK(node_id >= 0), lat INTEGER NOT NULL CHECK(lat BETWEEN -900000000 AND 900000000), lon INTEGER NOT NULL CHECK(lat BETWEEN -1800000000 AND 1800000000), has_name INTEGER NOT NULL, tags TEXT);", NO_PARAMS)?;
+    conn.execute("CREATE TABLE ways (way_id INTEGER PRIMARY KEY NOT NULL CHECK(way_id >= 0), lat_lb INTEGER NOT NULL CHECK(lat_lb BETWEEN -900000000 AND 900000000) DEFAULT 0, lon_lb INTEGER NOT NULL CHECK(lon_lb BETWEEN -1800000000 AND 1800000000) DEFAULT 0, lat_rt INTEGER NOT NULL CHECK(lat_rt BETWEEN lat_lb AND 900000000) DEFAULT 0, lon_rt INTEGER NOT NULL CHECK(lon_rt BETWEEN lon_lb AND 1800000000) DEFAULT 0, has_name INTEGER NOT NULL, tags TEXT);", NO_PARAMS)?;
+    conn.execute("CREATE TABLE way_nodes (way_id INTEGER NOT NULL CHECK(way_id >= 0),node_id INTEGER NOT NULL CHECK(node_id >= 0));", NO_PARAMS)?;
+    conn.execute(
         "CREATE INDEX way_nodes_index ON way_nodes (way_id);",
         NO_PARAMS,
     )?;
-    tx.execute("CREATE TABLE relations (relation_id INTEGER PRIMARY KEY NOT NULL CHECK(relation_id >= 0), lat_lb INTEGER NOT NULL CHECK(lat_lb BETWEEN -900000000 AND 900000000) DEFAULT 0, lon_lb INTEGER NOT NULL CHECK(lon_lb BETWEEN -1800000000 AND 1800000000) DEFAULT 0, lat_rt INTEGER NOT NULL CHECK(lat_rt BETWEEN lat_lb AND 900000000) DEFAULT 0, lon_rt INTEGER NOT NULL CHECK(lon_rt BETWEEN lon_lb AND 1800000000) DEFAULT 0, dep INTEGER NOT NULL CHECK(dep >= 0) DEFAULT 0, has_name INTEGER NOT NULL, tags TEXT);", NO_PARAMS)?;
-    tx.execute("CREATE TABLE relation_references (relation_id INTEGER NOT NULL CHECK(relation_id >= 0), reference_id INTEGER NOT NULL CHECK(reference_id >= 0), reference_type INTEGER NOT NULL CHECK(reference_type BETWEEN 0 AND 2));", NO_PARAMS)?;
-    tx.execute(
+    conn.execute("CREATE TABLE relations (relation_id INTEGER PRIMARY KEY NOT NULL CHECK(relation_id >= 0), lat_lb INTEGER NOT NULL CHECK(lat_lb BETWEEN -900000000 AND 900000000) DEFAULT 0, lon_lb INTEGER NOT NULL CHECK(lon_lb BETWEEN -1800000000 AND 1800000000) DEFAULT 0, lat_rt INTEGER NOT NULL CHECK(lat_rt BETWEEN lat_lb AND 900000000) DEFAULT 0, lon_rt INTEGER NOT NULL CHECK(lon_rt BETWEEN lon_lb AND 1800000000) DEFAULT 0, dep INTEGER NOT NULL CHECK(dep >= 0) DEFAULT 0, has_name INTEGER NOT NULL, tags TEXT);", NO_PARAMS)?;
+    conn.execute("CREATE TABLE relation_references (relation_id INTEGER NOT NULL CHECK(relation_id >= 0), reference_id INTEGER NOT NULL CHECK(reference_id >= 0), reference_type INTEGER NOT NULL CHECK(reference_type BETWEEN 0 AND 2));", NO_PARAMS)?;
+    conn.execute(
         "CREATE INDEX relation_references_index ON relation_references (relation_id);",
         NO_PARAMS,
     )?;
     // dump file
 
-    let mut insert_nodes_stmt = tx.prepare(
+    let mut insert_nodes_stmt = conn.prepare(
         "INSERT INTO nodes (node_id, lat, lon, has_name, tags) VALUES (?1, ?2, ?3, ?4, ?5);",
     )?;
     let mut insert_ways_stmt =
-        tx.prepare("INSERT INTO ways (way_id, has_name,tags) VALUES (?1, ?2, ?3);")?;
+        conn.prepare("INSERT INTO ways (way_id, has_name,tags) VALUES (?1, ?2, ?3);")?;
     let mut insert_way_nodes_stmt =
-        tx.prepare("INSERT INTO way_nodes (way_id, node_id) VALUES (?1, ?2);")?;
+        conn.prepare("INSERT INTO way_nodes (way_id, node_id) VALUES (?1, ?2);")?;
     let mut insert_relations_stmt =
-        tx.prepare("INSERT INTO relations (relation_id, has_name, tags) VALUES (?1, ?2, ?3);")?;
-    let mut insert_relation_references_stmt = tx.prepare("INSERT INTO relation_references (relation_id, reference_id, reference_type) VALUES (?1, ?2, ?3);")?;
+        conn.prepare("INSERT INTO relations (relation_id, has_name, tags) VALUES (?1, ?2, ?3);")?;
+    let mut insert_relation_references_stmt = conn.prepare("INSERT INTO relation_references (relation_id, reference_id, reference_type) VALUES (?1, ?2, ?3);")?;
     for obj in reader.par_iter() {
         match obj {
             Ok(obj) => match obj {
@@ -138,12 +137,6 @@ pub fn dump(pbf_path: &str, db_path: &str) -> Result<()> {
             }
         }
     }
-    insert_nodes_stmt.finalize()?;
-    insert_ways_stmt.finalize()?;
-    insert_way_nodes_stmt.finalize()?;
-    insert_relations_stmt.finalize()?;
-    insert_relation_references_stmt.finalize()?;
-    tx.commit()?;
     Ok(())
 }
 
