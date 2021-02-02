@@ -65,31 +65,107 @@ pub fn dump(pbf_path: &str, db_path: &str) -> Result<()> {
     )?;
     // create databases
 
-    conn.execute("CREATE TABLE nodes (node_id INTEGER PRIMARY KEY NOT NULL CHECK(node_id >= 0), lat INTEGER NOT NULL CHECK(lat BETWEEN -900000000 AND 900000000), lon INTEGER NOT NULL CHECK(lat BETWEEN -1800000000 AND 1800000000), has_name INTEGER NOT NULL, tags TEXT);", NO_PARAMS)?;
-    conn.execute("CREATE TABLE ways (way_id INTEGER PRIMARY KEY NOT NULL CHECK(way_id >= 0), lat_lb INTEGER NOT NULL CHECK(lat_lb BETWEEN -900000000 AND 900000000) DEFAULT 0, lon_lb INTEGER NOT NULL CHECK(lon_lb BETWEEN -1800000000 AND 1800000000) DEFAULT 0, lat_rt INTEGER NOT NULL CHECK(lat_rt BETWEEN lat_lb AND 900000000) DEFAULT 0, lon_rt INTEGER NOT NULL CHECK(lon_rt BETWEEN lon_lb AND 1800000000) DEFAULT 0, has_name INTEGER NOT NULL, tags TEXT);", NO_PARAMS)?;
-    conn.execute("CREATE TABLE way_nodes (way_id INTEGER NOT NULL CHECK(way_id >= 0),node_id INTEGER NOT NULL CHECK(node_id >= 0));", NO_PARAMS)?;
     conn.execute(
-        "CREATE INDEX way_nodes_index ON way_nodes (way_id);",
+        r#"
+        CREATE TABLE nodes (
+            node_id INTEGER PRIMARY KEY NOT NULL CHECK(node_id >= 0), 
+            lat INTEGER NOT NULL CHECK(lat BETWEEN -900000000 AND 900000000), 
+            lon INTEGER NOT NULL CHECK(lat BETWEEN -1800000000 AND 1800000000), 
+            has_name INTEGER NOT NULL, tags TEXT
+        );
+        "#,
         NO_PARAMS,
     )?;
-    conn.execute("CREATE TABLE relations (relation_id INTEGER PRIMARY KEY NOT NULL CHECK(relation_id >= 0), lat_lb INTEGER NOT NULL CHECK(lat_lb BETWEEN -900000000 AND 900000000) DEFAULT 0, lon_lb INTEGER NOT NULL CHECK(lon_lb BETWEEN -1800000000 AND 1800000000) DEFAULT 0, lat_rt INTEGER NOT NULL CHECK(lat_rt BETWEEN lat_lb AND 900000000) DEFAULT 0, lon_rt INTEGER NOT NULL CHECK(lon_rt BETWEEN lon_lb AND 1800000000) DEFAULT 0, dep INTEGER NOT NULL CHECK(dep >= 0) DEFAULT 0, has_name INTEGER NOT NULL, tags TEXT);", NO_PARAMS)?;
-    conn.execute("CREATE TABLE relation_references (relation_id INTEGER NOT NULL CHECK(relation_id >= 0), reference_id INTEGER NOT NULL CHECK(reference_id >= 0), reference_type INTEGER NOT NULL CHECK(reference_type BETWEEN 0 AND 2));", NO_PARAMS)?;
     conn.execute(
-        "CREATE INDEX relation_references_index ON relation_references (relation_id);",
+        r#"
+        CREATE TABLE ways (
+            way_id INTEGER PRIMARY KEY NOT NULL CHECK(way_id >= 0),
+            lat_lb INTEGER NOT NULL CHECK(lat_lb BETWEEN -900000000 AND 900000000) DEFAULT 0, 
+            lon_lb INTEGER NOT NULL CHECK(lon_lb BETWEEN -1800000000 AND 1800000000) DEFAULT 0, 
+            lat_rt INTEGER NOT NULL CHECK(lat_rt BETWEEN lat_lb AND 900000000) DEFAULT 0, 
+            lon_rt INTEGER NOT NULL CHECK(lon_rt BETWEEN lon_lb AND 1800000000) DEFAULT 0, 
+            has_name INTEGER NOT NULL, tags TEXT
+        );
+        "#,
+        NO_PARAMS,
+    )?;
+    conn.execute(
+        r#"
+        CREATE TABLE way_nodes (
+            way_id INTEGER NOT NULL CHECK(way_id >= 0),
+            node_id INTEGER NOT NULL CHECK(node_id >= 0)
+        );"#,
+        NO_PARAMS,
+    )?;
+    conn.execute(
+        r#"
+        CREATE INDEX way_nodes_index ON way_nodes (way_id);
+        "#,
+        NO_PARAMS,
+    )?;
+    conn.execute(
+        r#"
+        CREATE TABLE relations (
+            relation_id INTEGER PRIMARY KEY NOT NULL CHECK(relation_id >= 0), 
+            lat_lb INTEGER NOT NULL CHECK(lat_lb BETWEEN -900000000 AND 900000000) DEFAULT 0, 
+            lon_lb INTEGER NOT NULL CHECK(lon_lb BETWEEN -1800000000 AND 1800000000) DEFAULT 0, 
+            lat_rt INTEGER NOT NULL CHECK(lat_rt BETWEEN lat_lb AND 900000000) DEFAULT 0, 
+            lon_rt INTEGER NOT NULL CHECK(lon_rt BETWEEN lon_lb AND 1800000000) DEFAULT 0, 
+            dep INTEGER NOT NULL CHECK(dep >= 0) DEFAULT 0, has_name INTEGER NOT NULL, 
+            tags TEXT
+        );
+        "#,
+        NO_PARAMS,
+    )?;
+    conn.execute(
+        r#"
+        CREATE TABLE relation_references (
+            relation_id INTEGER NOT NULL CHECK(relation_id >= 0), 
+            reference_id INTEGER NOT NULL CHECK(reference_id >= 0), 
+            reference_type INTEGER NOT NULL CHECK(reference_type BETWEEN 0 AND 2)
+        );
+        "#,
+        NO_PARAMS,
+    )?;
+    conn.execute(
+        r#"
+        CREATE INDEX relation_references_index 
+        ON relation_references (relation_id);
+        "#,
         NO_PARAMS,
     )?;
     // dump file
 
     let mut insert_nodes_stmt = conn.prepare(
-        "INSERT INTO nodes (node_id, lat, lon, has_name, tags) VALUES (?1, ?2, ?3, ?4, ?5);",
+        r#"
+        INSERT INTO nodes (node_id, lat, lon, has_name, tags) 
+        VALUES (?1, ?2, ?3, ?4, ?5);
+        "#,
     )?;
-    let mut insert_ways_stmt =
-        conn.prepare("INSERT INTO ways (way_id, has_name,tags) VALUES (?1, ?2, ?3);")?;
-    let mut insert_way_nodes_stmt =
-        conn.prepare("INSERT INTO way_nodes (way_id, node_id) VALUES (?1, ?2);")?;
-    let mut insert_relations_stmt =
-        conn.prepare("INSERT INTO relations (relation_id, has_name, tags) VALUES (?1, ?2, ?3);")?;
-    let mut insert_relation_references_stmt = conn.prepare("INSERT INTO relation_references (relation_id, reference_id, reference_type) VALUES (?1, ?2, ?3);")?;
+    let mut insert_ways_stmt = conn.prepare(
+        r#"
+        INSERT INTO ways (way_id, has_name,tags) 
+        VALUES (?1, ?2, ?3);
+        "#,
+    )?;
+    let mut insert_way_nodes_stmt = conn.prepare(
+        r#"
+        INSERT INTO way_nodes (way_id, node_id) 
+        VALUES (?1, ?2);
+        "#,
+    )?;
+    let mut insert_relations_stmt = conn.prepare(
+        r#"
+        INSERT INTO relations (relation_id, has_name, tags) 
+        VALUES (?1, ?2, ?3);
+        "#,
+    )?;
+    let mut insert_relation_references_stmt = conn.prepare(
+        r#"
+        INSERT INTO relation_references (relation_id, reference_id, reference_type) 
+        VALUES (?1, ?2, ?3);
+        "#,
+    )?;
     for obj in reader.par_iter() {
         match obj {
             Ok(obj) => match obj {
@@ -188,10 +264,25 @@ fn nullable_max(a: NullableI32, b: NullableI32, c: NullableI32) -> Result<i32> {
 /// calculate the lat and lon range of the way
 pub fn parse_ways(dataset_path: &str) -> Result<()> {
     let conn = Connection::open(dataset_path)?;
-    let mut all_ways = conn.prepare("SELECT way_id FROM ways;")?;
-    let mut query_way = conn.prepare("SELECT MIN(lat), MAX(lat), MIN(lon), MAX(lon) FROM nodes WHERE node_id IN (SELECT node_id FROM way_nodes WHERE way_id = ?);")?;
+    let mut all_ways = conn.prepare(
+        r#"
+        SELECT way_id 
+        FROM ways;
+        "#,
+    )?;
+    let mut query_way = conn.prepare(
+        r#"
+        SELECT MIN(lat), MAX(lat), MIN(lon), MAX(lon) 
+        FROM nodes 
+        WHERE node_id IN (SELECT node_id 
+                          FROM way_nodes WHERE way_id = ?);
+        "#,
+    )?;
     let mut update_way = conn.prepare(
-        "UPDATE ways SET lat_lb = ?1, lon_lb = ?2, lat_rt = ?3, lon_rt = ?4 WHERE way_id = ?5;",
+        r#"
+        UPDATE ways SET lat_lb = ?1, lon_lb = ?2, lat_rt = ?3, lon_rt = ?4 
+        WHERE way_id = ?5;
+        "#,
     )?;
     let way_id_rows = all_ways.query_map(NO_PARAMS, |row| row.get(0))?;
     for way_id in way_id_rows {
@@ -208,12 +299,56 @@ pub fn parse_ways(dataset_path: &str) -> Result<()> {
 /// calculate the lat and lon range of the relation
 pub fn parse_relations(dataset_path: &str) -> Result<()> {
     let conn = Connection::open(dataset_path)?;
-    let mut all_relations = conn.prepare("SELECT relation_id FROM relations WHERE dep = 0;")?;
-    let mut update_relation = conn.prepare("UPDATE relations SET dep = 1, lat_lb = ?1, lon_lb = ?2, lat_rt = ?3, lon_rt = ?4 WHERE relation_id = ?5;")?;
-    let mut check_dep = conn.prepare("SELECT COUNT(*) FROM relations WHERE relation_id IN (SELECT reference_id FROM relation_references WHERE relation_id = ? AND reference_type = 2 AND dep = 0);")?;
-    let mut query_nodes = conn.prepare("SELECT MIN(lat), MAX(lat), MIN(lon), MAX(lon) FROM nodes WHERE node_id IN (SELECT reference_id FROM relation_references WHERE relation_id = ? AND reference_type = 0);")?;
-    let mut query_ways = conn.prepare("SELECT MIN(lat_lb), MAX(lat_rt), MIN(lon_lb), MAX(lon_rt) FROM ways WHERE way_id IN (SELECT reference_id FROM relation_references WHERE relation_id = ? AND reference_type = 1);")?;
-    let mut query_relations = conn.prepare("SELECT MIN(lat_lb), MAX(lat_rt), MIN(lon_lb), MAX(lon_rt) FROM relations WHERE relation_id IN (SELECT reference_id FROM relation_references WHERE relation_id = ? AND reference_type = 2);")?;
+    let mut all_relations = conn.prepare(
+        r#"
+        SELECT relation_id FROM relations WHERE dep = 0;
+        "#,
+    )?;
+    let mut update_relation = conn.prepare(
+        r#"
+        UPDATE relations SET dep = 1, lat_lb = ?1, lon_lb = ?2, lat_rt = ?3, lon_rt = ?4 
+        WHERE relation_id = ?5;
+        "#,
+    )?;
+    let mut check_dep = conn.prepare(
+        r#"
+        SELECT COUNT(*) FROM relations 
+        WHERE relation_id IN (SELECT reference_id 
+                              FROM relation_references 
+                              WHERE relation_id = ? 
+                              AND reference_type = 2 
+                              AND dep = 0);
+        "#,
+    )?;
+    let mut query_nodes = conn.prepare(
+        r#"
+        SELECT MIN(lat), MAX(lat), MIN(lon), MAX(lon)
+        FROM nodes WHERE node_id IN (SELECT reference_id 
+                                     FROM relation_references 
+                                     WHERE relation_id = ? 
+                                     AND reference_type = 0);
+        "#,
+    )?;
+    let mut query_ways = conn.prepare(
+        r#"
+        SELECT MIN(lat_lb), MAX(lat_rt), MIN(lon_lb), MAX(lon_rt) 
+        FROM ways 
+        WHERE way_id IN (SELECT reference_id 
+                         FROM relation_references 
+                         WHERE relation_id = ? 
+                         AND reference_type = 1);
+        "#,
+    )?;
+    let mut query_relations = conn.prepare(
+        r#"
+        SELECT MIN(lat_lb), MAX(lat_rt), MIN(lon_lb), MAX(lon_rt) 
+        FROM relations 
+        WHERE relation_id IN (SELECT reference_id 
+                              FROM relation_references 
+                              WHERE relation_id = ? 
+                              AND reference_type = 2);
+        "#,
+    )?;
     loop {
         let mut change_flag = false;
         let relation_id_rows = all_relations.query_map(NO_PARAMS, |row| row.get(0))?;
@@ -271,14 +406,73 @@ pub fn parse_relations(dataset_path: &str) -> Result<()> {
 /// refine the databases
 pub fn refine(dataset_path: &str) -> Result<()> {
     let conn = Connection::open(dataset_path)?;
-    conn.execute("CREATE TABLE poi (poi_type INTEGER NOT NULL CHECK(poi_type BETWEEN 0 AND 2), lat INTEGER NOT NULL CHECK(lat BETWEEN -900000000 AND 900000000),lon INTEGER NOT NULL CHECK(lon BETWEEN -1800000000 AND 1800000000), d_lat INTEGER NOT NULL CHECK(d_lat >= 0), d_lon INTEGER NOT NULL CHECK(d_lon >= 0), tags TEXT);", NO_PARAMS)?;
-    conn.execute("INSERT INTO poi (poi_type, lat, lon, d_lat, d_lon, tags) SELECT 0, lat, lon, 0, 0, tags FROM nodes WHERE has_name = 1;", NO_PARAMS)?;
-    conn.execute("INSERT INTO poi (poi_type, lat, lon, d_lat, d_lon, tags) SELECT 1, (lat_lb + lat_rt) / 2, (lon_lb + lon_rt) / 2, (lat_rt - lat_lb) / 2, (lon_rt - lon_lb) / 2, tags FROM ways WHERE has_name = 1;", NO_PARAMS)?;
-    conn.execute("INSERT INTO poi (poi_type, lat, lon, d_lat, d_lon, tags) SELECT 1, (lat_lb + lat_rt) / 2, (lon_lb + lon_rt) / 2, (lat_rt - lat_lb) / 2, (lon_rt - lon_lb) / 2, tags FROM relations WHERE has_name = 1;", NO_PARAMS)?;
-    conn.execute("DROP TABLE nodes;", NO_PARAMS)?;
-    conn.execute("DROP TABLE ways;", NO_PARAMS)?;
-    conn.execute("DROP TABLE way_nodes;", NO_PARAMS)?;
-    conn.execute("DROP TABLE relations;", NO_PARAMS)?;
-    conn.execute("DROP TABLE relation_references;", NO_PARAMS)?;
+    conn.execute(
+        r#"
+        CREATE TABLE poi (
+            poi_type INTEGER NOT NULL CHECK(poi_type BETWEEN 0 AND 2), 
+            lat INTEGER NOT NULL CHECK(lat BETWEEN -900000000 AND 900000000),
+            lon INTEGER NOT NULL CHECK(lon BETWEEN -1800000000 AND 1800000000), 
+            d_lat INTEGER NOT NULL CHECK(d_lat >= 0), 
+            d_lon INTEGER NOT NULL CHECK(d_lon >= 0), 
+            tags TEXT);
+        "#,
+        NO_PARAMS,
+    )?;
+    conn.execute(
+        r#"
+        INSERT INTO poi (poi_type, lat, lon, d_lat, d_lon, tags) 
+        SELECT 0, lat, lon, 0, 0, tags 
+        FROM nodes 
+        WHERE has_name = 1;
+        "#,
+        NO_PARAMS,
+    )?;
+    conn.execute(
+        r#"
+        INSERT INTO poi (poi_type, lat, lon, d_lat, d_lon, tags) 
+        SELECT 1, (lat_lb + lat_rt) / 2, (lon_lb + lon_rt) / 2, (lat_rt - lat_lb) / 2, (lon_rt - lon_lb) / 2, tags 
+        FROM ways 
+        WHERE has_name = 1;
+        "#,
+        NO_PARAMS
+    )?;
+    conn.execute(
+        r#"
+        INSERT INTO poi (poi_type, lat, lon, d_lat, d_lon, tags) 
+        SELECT 1, (lat_lb + lat_rt) / 2, (lon_lb + lon_rt) / 2, (lat_rt - lat_lb) / 2, (lon_rt - lon_lb) / 2, tags 
+        FROM relations 
+        WHERE has_name = 1;
+        "#, 
+        NO_PARAMS
+    )?;
+    conn.execute(
+        r#"
+        DROP TABLE nodes;
+        "#,
+        NO_PARAMS,
+    )?;
+    conn.execute(
+        r#"
+        DROP TABLE ways;
+        "#,
+        NO_PARAMS,
+    )?;
+    conn.execute(
+        r#"
+        DROP TABLE way_nodes;
+        "#,
+        NO_PARAMS,
+    )?;
+    conn.execute(
+        r#"
+        DROP TABLE relations;
+        "#,
+        NO_PARAMS,
+    )?;
+    conn.execute(
+        r#"
+        DROP TABLE relation_references;"#,
+        NO_PARAMS,
+    )?;
     Ok(())
 }
