@@ -26,11 +26,7 @@ fn main() -> Result<()> {
             let dataset_path = dataset_path
                 .to_str()
                 .context("Cannot convert file to string")?;
-            // add pbf
-            dump(&add.path, dataset_path)?;
-            parse_ways(dataset_path)?;
-            parse_relations(dataset_path)?;
-            refine(dataset_path)?;
+            add_pbf(&add.path, dataset_path, add.memory)?;
         }
         SubCommand::Export(export) => {
             let path = data_dir()?.join(export.name);
@@ -84,6 +80,9 @@ struct List;
 struct Add {
     /// the source of the dataset
     path: String,
+    /// parse in memory
+    #[clap(short)]
+    memory: bool,
 }
 
 /// export dataset from your data directory

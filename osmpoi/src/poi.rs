@@ -8,6 +8,7 @@ use rusqlite::{params, Connection, OpenFlags, NO_PARAMS};
 use serde_json::Map;
 use std::cmp::{max, min};
 use std::fs::File;
+use std::path::Path;
 
 /// A struct that represents the counts of different elements in a file.
 #[derive(Debug)]
@@ -36,7 +37,10 @@ impl OsmCount {
     }
 }
 
-fn pbf_reader_from_path(path: &str) -> Result<OsmPbfReader<File>> {
+fn pbf_reader_from_path<P>(path: P) -> Result<OsmPbfReader<File>>
+where
+    P: AsRef<Path>,
+{
     let read = File::open(path)?;
     Ok(OsmPbfReader::new(read))
 }
@@ -55,16 +59,34 @@ pub fn count(path: &str) -> Result<OsmCount> {
     Ok(count)
 }
 
-pub fn dump(pbf_path: &str, db_path: &str) -> Result<()> {
-    // init the pbf reader
+pub fn add_pbf<P1, P2>(pbf_path: P1, db_path: P2, in_memory: bool) -> Result<()>
+where
+    P1: AsRef<Path>,
+    P2: AsRef<Path>,
+{
+    let conn = if in_memory {
+        Connection::open_in_memory()?
+    } else {
+        Connection::open_with_flags(
+            &db_path,
+            OpenFlags::SQLITE_OPEN_CREATE | OpenFlags::SQLITE_OPEN_READ_WRITE,
+        )?
+    };
+    dump(pbf_path, &conn)?;
+    parse_ways(&conn)?;
+    parse_relations(&conn)?;
+    refine(&conn)?;
+    if in_memory {
+        conn.backup(rusqlite::DatabaseName::Main, &db_path, None)?;
+    }
+    Ok(())
+}
+
+pub fn dump<P>(pbf_path: P, conn: &Connection) -> Result<()>
+where
+    P: AsRef<Path>,
+{
     let mut reader = pbf_reader_from_path(pbf_path)?;
-
-    let conn = Connection::open_with_flags(
-        db_path,
-        OpenFlags::SQLITE_OPEN_CREATE | OpenFlags::SQLITE_OPEN_READ_WRITE,
-    )?;
-    // create databases
-
     conn.execute(
         r#"
         CREATE TABLE nodes (
@@ -169,35 +191,35 @@ pub fn dump(pbf_path: &str, db_path: &str) -> Result<()> {
     for obj in reader.par_iter() {
         match obj {
             Ok(obj) => match obj {
-                OsmObj::Node(n) => {
+                OsmObj::Node(node) => {
                     insert_nodes_stmt.execute(params![
-                        n.id.0,
-                        n.decimicro_lat,
-                        n.decimicro_lon,
-                        tags_has_name(n.tags.clone()),
-                        tags_to_json_string(n.tags.clone()),
+                        node.id.0,
+                        node.decimicro_lat,
+                        node.decimicro_lon,
+                        tags_has_name(node.tags.clone()),
+                        tags_to_json_string(node.tags.clone()),
                     ])?;
                 }
-                OsmObj::Way(w) => {
+                OsmObj::Way(way) => {
                     insert_ways_stmt.execute(params![
-                        w.id.0,
-                        tags_has_name(w.tags.clone()),
-                        tags_to_json_string(w.tags.clone())
+                        way.id.0,
+                        tags_has_name(way.tags.clone()),
+                        tags_to_json_string(way.tags.clone())
                     ])?;
-                    for node_id in w.nodes {
-                        insert_way_nodes_stmt.execute(params![w.id.0, node_id.0])?;
+                    for node_id in way.nodes {
+                        insert_way_nodes_stmt.execute(params![way.id.0, node_id.0])?;
                     }
                 }
-                OsmObj::Relation(r) => {
+                OsmObj::Relation(relation) => {
                     insert_relations_stmt.execute(params![
-                        r.id.0,
-                        tags_has_name(r.tags.clone()),
-                        tags_to_json_string(r.tags.clone())
+                        relation.id.0,
+                        tags_has_name(relation.tags.clone()),
+                        tags_to_json_string(relation.tags.clone())
                     ])?;
-                    for reference in r.refs {
+                    for reference in relation.refs {
                         let member = reference.member;
                         insert_relation_references_stmt.execute(params![
-                            r.id.0,
+                            relation.id.0,
                             member.inner_id(),
                             match member {
                                 OsmId::Node(_) => 0,
@@ -262,8 +284,7 @@ fn nullable_max(a: NullableI32, b: NullableI32, c: NullableI32) -> Result<i32> {
 }
 
 /// calculate the lat and lon range of the way
-pub fn parse_ways(dataset_path: &str) -> Result<()> {
-    let conn = Connection::open(dataset_path)?;
+pub fn parse_ways(conn: &Connection) -> Result<()> {
     let mut all_ways = conn.prepare(
         r#"
         SELECT way_id 
@@ -297,8 +318,7 @@ pub fn parse_ways(dataset_path: &str) -> Result<()> {
 }
 
 /// calculate the lat and lon range of the relation
-pub fn parse_relations(dataset_path: &str) -> Result<()> {
-    let conn = Connection::open(dataset_path)?;
+pub fn parse_relations(conn: &Connection) -> Result<()> {
     let mut all_relations = conn.prepare(
         r#"
         SELECT relation_id FROM relations WHERE dep = 0;
@@ -404,8 +424,7 @@ pub fn parse_relations(dataset_path: &str) -> Result<()> {
 }
 
 /// refine the databases
-pub fn refine(dataset_path: &str) -> Result<()> {
-    let conn = Connection::open(dataset_path)?;
+pub fn refine(conn: &Connection) -> Result<()> {
     conn.execute(
         r#"
         CREATE TABLE poi (
