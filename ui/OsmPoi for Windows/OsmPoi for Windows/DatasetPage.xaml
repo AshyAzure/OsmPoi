@@ -26,11 +26,11 @@
             SelectionMode="Single"
             ItemsSource="{x:Bind Datasets}">
             <ListView.Header>
-                <TextBlock Text="233" />
+                <TextBlock Text="数据集" />
             </ListView.Header>
             <ListView.ItemTemplate>
                 <DataTemplate x:DataType="local:Dataset">
-                    <TextBlock Text="{x:Bind Name}" />
+                    <TextBlock Text="{x:Bind Path=}" />
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>

@@ -13,6 +13,7 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using System.Collections.ObjectModel;
+using Windows.Storage;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -26,27 +27,57 @@ namespace OsmPoi_for_Windows
         public DatasetPage()
         {
             this.InitializeComponent();
-            datasets.Add(new Dataset("D1"));
-            datasets.Add(new Dataset("D2"));
+            updateDatasets();
         }
 
-        private void AppBarButton_Click(object sender, RoutedEventArgs e)
+        private async void AppBarButton_Click(object sender, RoutedEventArgs e)
         {
+            var button = sender as AppBarButton;
+            if (button != null)
+            {
+                switch (button.Tag.ToString()) {
+                    case "Add":
+                        var picker = new Windows.Storage.Pickers.FileOpenPicker();
+                        Windows.Storage.StorageFile file = await picker.PickSingleFileAsync();
+                        if (file != null)
+                        {
+                            // todo
+                        }
+                        updateDatasets();
+                        break;
+                    case "Delete":
+                        var folder = ApplicationData.Current.LocalCacheFolder;
 
+                        updateDatasets();
+                        break;
+                }
+            }
+            
         }
 
         private ObservableCollection<Dataset> datasets = new ObservableCollection<Dataset>();
 
         public ObservableCollection<Dataset> Datasets { get { return datasets; } }
+
+        private async void updateDatasets()
+        {
+            var folder = ApplicationData.Current.LocalCacheFolder;
+            var new_datasets = new ObservableCollection<Dataset>();
+            foreach(var file in await folder.GetFilesAsync())
+            {
+                new_datasets.Add(new Dataset(file.Path));
+            }
+            datasets = new_datasets;
+        }
     }
 
     public class Dataset
     {
-        public Dataset(string name)
+        public Dataset(string path)
         {
-            Name = name;
+            FilePath = path;
         }
 
-        public string Name { get; set; } 
+        public string FilePath { get; set; } 
     }
 }

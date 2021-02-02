@@ -11,8 +11,8 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
-            <RowDefinition Height="6*" />
-            <RowDefinition Height="2*" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -20,15 +20,52 @@
             <ColumnDefinition Width="8*" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
+        <Grid.Resources>
+            <local:DatasetNameConverter x:Key="DatasetNameConverter"/>
+        </Grid.Resources>
 
-        <Border
+        <!--<Border
             Grid.Row="1"
             Grid.Column="1"
             BorderBrush="Gray" 
             BorderThickness="2">
 
             <TextBlock Text="Drop csv here or click" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-        </Border>
+        </Border>-->
+        <ComboBox 
+            x:Name="DatasetCombo" 
+            Header="Select a Dataset" 
+            Grid.Column="1"
+            Grid.Row="0"
+            VerticalAlignment="Center"
+            HorizontalAlignment="Center">
+        </ComboBox>
 
+        <Button 
+            x:Name="InputButton"
+            Content="{x:Bind InputButtonName}"
+            Grid.Row="1"
+            Grid.Column="1"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Click="InputButton_Click" />
+
+        <Button 
+            x:Name="OutputButton"
+            Content="{x:Bind OutputButtonName}"
+            Grid.Row="2"
+            Grid.Column="1"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Click="OutputButton_Click" />
+
+        <Button 
+            x:Name="QueryButton"
+            Content="查询"
+            Grid.Row="3"
+            Grid.Column="1"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Click="QueryButton_Click" />
     </Grid>
 </Page>
