@@ -1,4 +1,3 @@
-pub mod ffi;
 pub mod poi;
 
 use anyhow::Result;
@@ -8,7 +7,6 @@ use rusqlite::{params, Connection};
 use serde::{Deserialize, Serialize};
 use std::f32::consts::PI;
 
-pub use ffi::*;
 pub use poi::*;
 
 pub fn query_csv(
