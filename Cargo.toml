@@ -5,8 +5,7 @@ authors = ["Xubai Wang <kindredwekingwang@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-csv = "1.2.1"
-itertools = "0.10.5"
+ormlite = { version = "0.14.2", features = ["sqlite"] }
 osmpbfreader = "0.16.0"
-serde_json = "1.0.96"
-signal-hook = "0.3.15"
+snafu = "0.7.4"
+tokio = { version = "1.28.2", features = ["full"] }
