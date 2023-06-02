@@ -1,8 +1,13 @@
 mod aggregate;
+mod clean;
 mod extract;
 mod orm;
+mod distance;
 
+use crate::aggregate::aggregate_positions;
+use crate::clean::clean_database;
 use crate::extract::extract_required;
+use crate::distance::dump_distances;
 use ormlite::{sqlite::SqliteConnection, Connection};
 use osmpbfreader::OsmPbfReader;
 use snafu::{prelude::*, Whatever};
@@ -25,12 +30,13 @@ pub async fn main() -> Result<(), Whatever> {
     // run steps
     println!("Start extracting required information...");
     extract_required(&mut reader, &mut conn).await?;
+    drop(reader);
     println!("Start aggregating relation positions...");
-    // aggregate_position(&mut conn);
+    aggregate_positions(&mut conn).await?;
     println!("Start dumping distances");
-    // dump_distances(&mut conn);
+    dump_distances(&mut conn).await?;
     println!("Cleaning database...");
-    // TODO: cleaning
+    clean_database(&mut conn).await?;
     conn.close()
         .await
         .whatever_context("Fail to close databse")?;

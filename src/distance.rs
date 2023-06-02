@@ -1,16 +1,70 @@
+use crate::orm::{Distance, Position, Relation};
+use ormlite::sqlite::SqliteConnection;
+use ormlite::Model;
+use snafu::{prelude::*, Whatever};
+
 /// Calculate distances in a position map and dump it to a file.
-fn dump_distances(conn: &SqliteConnection) {
-    let mut wtr = csv::Writer::from_path(path).expect("Fail to create csv write");
-    wtr.write_record(&["id1", "id2", "distance"])
-        .expect("Fail to write header");
-    for (k1, k2) in positions.keys().expect("Fail to get keys").combinations(2) {}
-    for pair in positions.iter().combinations(2) {
-        let (id1, pos1) = pair.get(0).expect("Fail to get 1st position");
-        let (id2, pos2) = pair.get(1).expect("Fail to get 2nd position");
-        let distance = calculate_distance(pos1, pos2);
-        wtr.write_record(&[id1.to_string(), id2.to_string(), distance.to_string()])
-            .expect("Fail to write csv row");
+pub async fn dump_distances(conn: &mut SqliteConnection) -> Result<(), Whatever> {
+    // init table
+    Distance::create_table(&mut *conn).await?;
+    // iter twicely over relations
+    // loop outer
+    let mut offset_outer = 0;
+    'outer: loop {
+        if let Ok(r1) = Relation::select()
+            .offset(offset_outer)
+            .fetch_one(&mut *conn)
+            .await
+        {
+            // loop inner after offset of outer
+            let mut offset_inner = offset_outer + 1;
+            'inner: loop {
+                if let Ok(r2) = Relation::select()
+                    .offset(offset_inner)
+                    .fetch_one(&mut *conn)
+                    .await
+                {
+                    // get position and calculate distance
+                    dump_pair(r1.id, r2.id, &mut *conn).await?;
+                    // inner increase offset
+                    offset_inner += 1;
+                } else {
+                    break 'inner;
+                }
+            }
+            // outer increase offset
+            offset_outer += 1;
+        } else {
+            break 'outer;
+        }
     }
+    Ok(())
+}
+
+/// Dump distance of a pair.
+async fn dump_pair(id1: i64, id2: i64, conn: &mut SqliteConnection) -> Result<(), Whatever> {
+    let pos1 = Position::select()
+        .where_("id = ?")
+        .bind(id1)
+        .fetch_one(&mut *conn)
+        .await
+        .whatever_context("Fail to get position of relation")?;
+    let pos2 = Position::select()
+        .where_("id = ?")
+        .bind(id1)
+        .fetch_one(&mut *conn)
+        .await
+        .whatever_context("Fail to get position of relation")?;
+    let distance = Distance {
+        id1,
+        id2,
+        km: calculate_distance(&pos1, &pos2),
+    };
+    distance
+        .insert(&mut *conn)
+        .await
+        .whatever_context("Fail to insert into distance table")?;
+    Ok(())
 }
 
 /// Calculate distance between two positions in kilometers.

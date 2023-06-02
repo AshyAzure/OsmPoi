@@ -20,12 +20,16 @@ pub async fn extract_required(
     for obj in reader.par_iter() {
         // only handle relations
         if let Ok(OsmObj::Relation(r)) = obj {
+            // extract relation id
+            Relation { id: r.id.0 }
+                .insert(&mut *conn)
+                .await
+                .whatever_context("Fail to insert relation id")?;
             // extract member id
             for m in r.refs {
                 Membership {
                     id: r.id.0,
                     mid: m.member.inner_id(),
-                    is_relation: true,
                 }
                 .insert(&mut *conn)
                 .await
@@ -63,7 +67,6 @@ pub async fn extract_required(
                     Membership {
                         id: w.id.0,
                         mid: n.0,
-                        is_relation: false,
                     }
                     .insert(&mut *conn)
                     .await
