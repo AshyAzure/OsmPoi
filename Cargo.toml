@@ -5,8 +5,11 @@ authors = ["Xubai Wang <kindredwekingwang@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-async-recursion = "1.0.4"
-ormlite = { version = "0.14.2", features = ["sqlite"] }
-osmpbfreader = "0.16.0"
-snafu = "0.7.4"
-tokio = { version = "1.28.2", features = ["full"] }
+csv = "1.2.2"
+im-rc = "15.1.0"
+indicatif = "0.17.5"
+lazy_static = "1.4.0"
+osmpbf = "0.3.0"
+serde = { version = "1.0.164", features = ["derive"] }
+sled = "0.34.7"
+typed-sled = "0.2.3"
