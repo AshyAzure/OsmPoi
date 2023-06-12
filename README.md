@@ -10,4 +10,4 @@ This repo is in an early stage and now it only dumps distances between "relation
 cargo run --release -- <data.osm.pbf>
 ```
 
-This will generate two file: `<data.osm.pbf>.tag.json` which contains dumps all relation tags, and `data.osm.pbf.dist.csv` which calculates Haversine distances between all relations.
+This will generate two file: `<data.osm.pbf>.tag.json` which contains dumps all relation tags, and `data.osm.pbf.distance.csv` which calculates Haversine distances (in kilometers) between all relations.
